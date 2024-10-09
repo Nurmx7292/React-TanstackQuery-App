@@ -37,11 +37,10 @@ const router = createBrowserRouter([
   },
 ]);
 
+export const client = new QueryClient();
 function App() {
-  const client = new QueryClient();
   return <QueryClientProvider client={client}>
     <RouterProvider router={router} />
   </QueryClientProvider>;
 }
-
 export default App;

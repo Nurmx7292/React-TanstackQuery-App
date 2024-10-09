@@ -54,7 +54,7 @@ app.get('/events/images', async (req, res) => {
 
   res.json({ images });
 });
-
+ 
 app.get('/events/:id', async (req, res) => {
   const { id } = req.params;
 
