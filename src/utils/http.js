@@ -64,3 +64,20 @@ export async function fetchEventById(id){
   console.log(event)
   return event;
 }
+
+export async function deleteEventById(id){
+  const response = await fetch(`http://localhost:3000/events/${id}`,{
+    method: "DELETE"
+  });
+
+  if (!response.ok) {
+    const error = new Error('An error occurred while fetching the event');
+    error.code = response.status;
+    error.info = await response.json();
+    throw error;
+  }
+
+  const { message } = await response.json();
+  console.log(message)
+  return message;
+}

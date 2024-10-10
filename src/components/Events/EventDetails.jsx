@@ -1,17 +1,22 @@
-import { Link, Outlet, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { Link, Outlet, useParams, useNavigate } from 'react-router-dom';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import Header from '../Header.jsx';
-import { fetchEventById } from '../../utils/http.js';
+import { deleteEventById, fetchEventById } from '../../utils/http.js';
 import LoadingIndicator from '../UI/LoadingIndicator.jsx';
 import ErrorBlock from '../UI/ErrorBlock.jsx';
 
 export default function EventDetails() {
+  let navigate = useNavigate()
   let {id} = useParams()
   let { data,isPending,isError,error } = useQuery({
-    queryKey: ["event"],
+    queryKey: ["event",id],
     queryFn: () => fetchEventById(id)
   })
-  
+  let mutation = useMutation({
+    mutationFn: () => deleteEventById(id),
+    onSuccess: () => setTimeout(()=>{navigate("../")},500)
+  })
+
   let content;
   if(isPending){
     content = <LoadingIndicator/>
@@ -21,11 +26,11 @@ export default function EventDetails() {
   }
   if(data){
     content = (
-    <article id="event-details">
+    <>
     <header>
       <h1>{data.title}</h1>
       <nav>
-        <button>Delete</button>
+        {mutation.isError ? <ErrorBlock title="Could not delete" message={mutation.error.info?.message} /> : mutation.isPending ? <LoadingIndicator/> : <button onClick={()=>mutation.mutate()}>{mutation.data ? "Deleted successfully" : "Delete"}</button>}
         <Link to="edit">Edit</Link>
       </nav>
     </header>
@@ -39,7 +44,7 @@ export default function EventDetails() {
         <p id="event-details-description">{data.description}</p>
       </div>
     </div>
-  </article>
+  </>
     )
   }
 
@@ -51,8 +56,7 @@ export default function EventDetails() {
           View all Events
         </Link>
       </Header>
-      {content}
-      
+      <article id="event-details">{content}</article>
     </>
   );
 }
